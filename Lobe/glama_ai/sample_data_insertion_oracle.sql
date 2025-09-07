@@ -1,7 +1,155 @@
--- Sample Data Insertion Script for Glama.ai MCP Schema - Oracle Version
--- Created: September 5, 2025
--- Purpose: Insert comprehensive sample data for Playwright MCP server
+-- Category inserts moved from schema file
+INSERT INTO categories (category_name) VALUES ('Art & Culture');
+INSERT INTO categories (category_name) VALUES ('RAG Systems');
+INSERT INTO categories (category_name) VALUES ('Browser Automation');
+INSERT INTO categories (category_name) VALUES ('Web Scraping');
+INSERT INTO categories (category_name) VALUES ('Shell Access');
+INSERT INTO categories (category_name) VALUES ('Cloud Platforms');
+INSERT INTO categories (category_name) VALUES ('Communication');
+INSERT INTO categories (category_name) VALUES ('Customer Data Platforms');
+INSERT INTO categories (category_name) VALUES ('Databases');
+INSERT INTO categories (category_name) VALUES ('Developer Tools');
+INSERT INTO categories (category_name) VALUES ('CI/CD & DevOps');
+INSERT INTO categories (category_name) VALUES ('File Systems');
+INSERT INTO categories (category_name) VALUES ('Knowledge & Memory');
+INSERT INTO categories (category_name) VALUES ('Location Services');
+INSERT INTO categories (category_name) VALUES ('Marketing');
+INSERT INTO categories (category_name) VALUES ('Monitoring');
+INSERT INTO categories (category_name) VALUES ('Observability');
+INSERT INTO categories (category_name) VALUES ('Vector Databases');
+INSERT INTO categories (category_name) VALUES ('Feature Flags');
+INSERT INTO categories (category_name) VALUES ('Agent Orchestration');
+INSERT INTO categories (category_name) VALUES ('Search');
+INSERT INTO categories (category_name) VALUES ('Travel & Transportation');
+INSERT INTO categories (category_name) VALUES ('Version Control');
+INSERT INTO categories (category_name) VALUES ('Text Summarization');
+INSERT INTO categories (category_name) VALUES ('Virtualization');
+INSERT INTO categories (category_name) VALUES ('Finance');
+INSERT INTO categories (category_name) VALUES ('Blockchain');
+INSERT INTO categories (category_name) VALUES ('Web3 & Decentralized Tech');
+INSERT INTO categories (category_name) VALUES ('Government Data');
+INSERT INTO categories (category_name) VALUES ('Open Data');
+INSERT INTO categories (category_name) VALUES ('Cryptocurrency');
+INSERT INTO categories (category_name) VALUES ('Research & Data');
+INSERT INTO categories (category_name) VALUES ('Social Media');
+INSERT INTO categories (category_name) VALUES ('OS Automation');
+INSERT INTO categories (category_name) VALUES ('Note Taking');
+INSERT INTO categories (category_name) VALUES ('Cloud Storage');
+INSERT INTO categories (category_name) VALUES ('Calendar Management');
+INSERT INTO categories (category_name) VALUES ('E-commerce & Retail');
+INSERT INTO categories (category_name) VALUES ('Health & Wellness');
+INSERT INTO categories (category_name) VALUES ('Education & Learning Tools');
+INSERT INTO categories (category_name) VALUES ('Entertainment & Media');
+INSERT INTO categories (category_name) VALUES ('Home Automation & IoT');
+INSERT INTO categories (category_name) VALUES ('Customer Support');
+INSERT INTO categories (category_name) VALUES ('Legal & Compliance');
+INSERT INTO categories (category_name) VALUES ('Language Translation');
+INSERT INTO categories (category_name) VALUES ('Speech Processing');
+INSERT INTO categories (category_name) VALUES ('Image & Video Processing');
+INSERT INTO categories (category_name) VALUES ('Security');
+INSERT INTO categories (category_name) VALUES ('Games & Gamification');
+INSERT INTO categories (category_name) VALUES ('Multimedia Processing');
+INSERT INTO categories (category_name) VALUES ('Audio Processing');
+INSERT INTO categories (category_name) VALUES ('ERP Systems');
+INSERT INTO categories (category_name) VALUES ('Code Execution');
+INSERT INTO categories (category_name) VALUES ('Code Analysis');
+INSERT INTO categories (category_name) VALUES ('Coding Agents');
+INSERT INTO categories (category_name) VALUES ('Autonomous Agents');
+INSERT INTO categories (category_name) VALUES ('Bioinformatics');
+INSERT INTO categories (category_name) VALUES ('Command Line');
+INSERT INTO categories (category_name) VALUES ('Data Platforms');
+INSERT INTO categories (category_name) VALUES ('Embedded system');
+INSERT INTO categories (category_name) VALUES ('Sports');
+INSERT INTO categories (category_name) VALUES ('Text-to-Speech');
+INSERT INTO categories (category_name) VALUES ('Testing & QA Tools');
+INSERT INTO categories (category_name) VALUES ('App Automation');
+INSERT INTO categories (category_name) VALUES ('Content Management Systems');
+INSERT INTO categories (category_name) VALUES ('API Testing');
+INSERT INTO categories (category_name) VALUES ('Documentation Access');
+INSERT INTO categories (category_name) VALUES ('Penetration Testing');
+INSERT INTO categories (category_name) VALUES ('Project Management');
+INSERT INTO categories (category_name) VALUES ('Fitness Tracking');
+INSERT INTO categories (category_name) VALUES ('Weather Services');
+INSERT INTO categories (category_name) VALUES ('Workplace & Productivity');
+INSERT INTO categories (category_name) VALUES ('Real Estate');
+INSERT INTO categories (category_name) VALUES ('Biology & Medicine');
+INSERT INTO categories (category_name) VALUES ('Aerospace & Astrodynamics');
 
+-- Commit the changes
+
+
+-- Add categories for the Playwright server
+DECLARE
+    v_server_id NUMBER;
+    v_category_id NUMBER;
+BEGIN
+    -- Get the server ID
+    SELECT id INTO v_server_id FROM mcp_servers WHERE name = 'Playwright MCP';
+    
+    -- Add Browser Automation category
+    SELECT id INTO v_category_id FROM categories WHERE category_name = 'Browser Automation';
+    INSERT INTO server_categories (mcp_server_id, category_id) VALUES (v_server_id, v_category_id);
+    
+    -- Add RAG Systems category
+    SELECT id INTO v_category_id FROM categories WHERE category_name = 'RAG Systems';
+    INSERT INTO server_categories (mcp_server_id, category_id) VALUES (v_server_id, v_category_id);
+    
+    -- Add Testing & QA Tools category
+    SELECT id INTO v_category_id FROM categories WHERE category_name = 'Testing & QA Tools';
+    INSERT INTO server_categories (mcp_server_id, category_id) VALUES (v_server_id, v_category_id);
+END;
+/
+
+-- Add links for the Playwright server
+DECLARE
+    v_server_id NUMBER;
+    v_link_type_id NUMBER;
+BEGIN
+    -- Get the server ID
+    SELECT id INTO v_server_id FROM mcp_servers WHERE name = 'Playwright MCP';
+    
+    -- Add npm link
+    INSERT INTO mcp_links (mcp_server_id, link_type, url, is_primary)
+    VALUES (v_server_id, 'npm', 'https://www.npmjs.com/package/@playwright/mcp', 1);
+    -- Add github link
+    INSERT INTO mcp_links (mcp_server_id, link_type, url, is_primary)
+    VALUES (v_server_id, 'github', 'https://github.com/lewisvoncken/playwright-mcp', 1);
+END;
+/
+
+-- Add environment variable example
+DECLARE
+    v_server_id NUMBER;
+BEGIN
+    -- Get the server ID
+    SELECT id INTO v_server_id FROM mcp_servers WHERE name = 'Playwright MCP';
+    
+    -- Add as a global environment variable definition (no per-server mapping in this table)
+    INSERT INTO server_environment_variables (variable_name, is_required, description)
+    VALUES ('GITHUB_PERSONAL_ACCESS_TOKEN', 1, 
+           'GitHub Personal Access Token with appropriate permissions (repo scope for full control, public_repo for public repositories only)');
+END;
+/
+-- Example environment variable (simplified for new table shape)
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES (
+    'GITHUB_PERSONAL_ACCESS_TOKEN',
+    1,
+    'GitHub Personal Access Token with appropriate permissions (repo scope for full control, public_repo for public repositories only)'
+);
+
+
+-- Add API endpoint example
+DECLARE
+    v_server_id NUMBER;
+BEGIN
+    -- Get the server ID
+    SELECT id INTO v_server_id FROM mcp_servers WHERE name = 'Playwright MCP';
+    
+    INSERT INTO mcp_api_endpoints (mcp_server_id, endpoint_url, http_method, endpoint_description, is_public)
+    VALUES (v_server_id, 'https://glama.ai/api/mcp/v1/servers/glifxyz/glif-mcp-server', 'GET', 
+           'MCP directory API endpoint for server information', 1);
+END;
+/
 -- This assumes the Playwright MCP server has already been inserted in the schema file
 -- Get the server ID for reference
 DECLARE
@@ -13,92 +161,71 @@ BEGIN
     -- Get Playwright server ID
     SELECT id INTO v_playwright_server_id FROM mcp_servers WHERE name = 'Playwright MCP';
     
-    -- Insert score criteria if not already present
-    BEGIN
-        INSERT INTO server_score_criteria (criteria_name, criteria_description, max_points, display_order) VALUES 
-        ('has_readme', 'Repository has a README.md file', 10, 1);
-        INSERT INTO server_score_criteria (criteria_name, criteria_description, max_points, display_order) VALUES 
-        ('has_license', 'The repository has a LICENSE file', 10, 2);
-        INSERT INTO server_score_criteria (criteria_name, criteria_description, max_points, display_order) VALUES 
-        ('has_glama_json', 'Repository has a valid glama.json configuration file', 15, 3);
-        INSERT INTO server_score_criteria (criteria_name, criteria_description, max_points, display_order) VALUES 
-        ('server_inspectable', 'Server can be inspected through server inspector', 15, 4);
-        INSERT INTO server_score_criteria (criteria_name, criteria_description, max_points, display_order) VALUES 
-        ('has_tools', 'Server has at least one tool defined in schema', 20, 5);
-        INSERT INTO server_score_criteria (criteria_name, criteria_description, max_points, display_order) VALUES 
-        ('no_vulnerabilities', 'Server has no known security vulnerabilities', 15, 6);
-        INSERT INTO server_score_criteria (criteria_name, criteria_description, max_points, display_order) VALUES 
-        ('claimed_by_author', 'Server is claimed and verified by the original author', 10, 7);
-        INSERT INTO server_score_criteria (criteria_name, criteria_description, max_points, display_order) VALUES 
-        ('has_related_servers', 'Server has user-submitted related MCP servers for discoverability', 5, 8);
-    EXCEPTION
-        WHEN OTHERS THEN
-            NULL; -- Ignore if already exists
-    END;
+
     
-    -- Insert MCP Tools based on the provided list
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'start_codegen_session', 'Start a new code generation session to record Playwright actions', 'Code Generation', 1);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'end_codegen_session', 'End a code generation session and generate the test file', 'Code Generation', 2);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'get_codegen_session', 'Get information about a code generation session', 'Code Generation', 3);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'clear_codegen_session', 'Clear a code generation session without generating a test', 'Code Generation', 4);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_navigate', 'Navigate to a URL', 'Navigation', 5);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_screenshot', 'Take a screenshot of the current page or a specific element', 'Capture', 6);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_click', 'Click an element on the page', 'Interaction', 7);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_iframe_click', 'Click an element in an iframe on the page', 'Interaction', 8);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_iframe_fill', 'Fill an element in an iframe on the page', 'Interaction', 9);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_fill', 'Fill out an input field', 'Interaction', 10);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_select', 'Select an element on the page with Select tag', 'Interaction', 11);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_hover', 'Hover an element on the page', 'Interaction', 12);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_evaluate', 'Execute JavaScript in the browser console', 'Scripting', 13);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_console_logs', 'Retrieve console logs from the browser with filtering options', 'Debugging', 14);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_close', 'Close the browser and release all resources', 'Control', 15);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_get', 'Perform an HTTP GET request', 'HTTP', 16);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_post', 'Perform an HTTP POST request', 'HTTP', 17);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_put', 'Perform an HTTP PUT request', 'HTTP', 18);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_patch', 'Perform an HTTP PATCH request', 'HTTP', 19);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_delete', 'Perform an HTTP DELETE request', 'HTTP', 20);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_expect_response', 'Ask Playwright to start waiting for a HTTP response. This tool initiates the wait operation but does not wait for its completion.', 'HTTP', 21);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_assert_response', 'Wait for and validate a previously initiated HTTP response wait operation.', 'HTTP', 22);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_custom_user_agent', 'Set a custom User Agent for the browser', 'Configuration', 23);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_get_visible_text', 'Get the visible text content of the current page', 'Extraction', 24);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_get_visible_html', 'Get the HTML content of the current page', 'Extraction', 25);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_go_back', 'Navigate back in browser history', 'Navigation', 26);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_go_forward', 'Navigate forward in browser history', 'Navigation', 27);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_drag', 'Drag an element to a target location', 'Interaction', 28);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_press_key', 'Press a keyboard key', 'Interaction', 29);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_save_as_pdf', 'Save the current page as a PDF file', 'Export', 30);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_playwright_server_id, 'playwright_click_and_switch_tab', 'Click an element and switch to newly opened tab', 'Navigation', 31);
+    -- Insert MCP Tools based on the provided list (display_order removed)
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'start_codegen_session', 'Start a new code generation session to record Playwright actions', 'Code Generation');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'end_codegen_session', 'End a code generation session and generate the test file', 'Code Generation');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'get_codegen_session', 'Get information about a code generation session', 'Code Generation');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'clear_codegen_session', 'Clear a code generation session without generating a test', 'Code Generation');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_navigate', 'Navigate to a URL', 'Navigation');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_screenshot', 'Take a screenshot of the current page or a specific element', 'Capture');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_click', 'Click an element on the page', 'Interaction');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_iframe_click', 'Click an element in an iframe on the page', 'Interaction');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_iframe_fill', 'Fill an element in an iframe on the page', 'Interaction');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_fill', 'Fill out an input field', 'Interaction');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_select', 'Select an element on the page with Select tag', 'Interaction');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_hover', 'Hover an element on the page', 'Interaction');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_evaluate', 'Execute JavaScript in the browser console', 'Scripting');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_console_logs', 'Retrieve console logs from the browser with filtering options', 'Debugging');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_close', 'Close the browser and release all resources', 'Control');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_get', 'Perform an HTTP GET request', 'HTTP');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_post', 'Perform an HTTP POST request', 'HTTP');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_put', 'Perform an HTTP PUT request', 'HTTP');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_patch', 'Perform an HTTP PATCH request', 'HTTP');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_delete', 'Perform an HTTP DELETE request', 'HTTP');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_expect_response', 'Ask Playwright to start waiting for a HTTP response. This tool initiates the wait operation but does not wait for its completion.', 'HTTP');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_assert_response', 'Wait for and validate a previously initiated HTTP response wait operation.', 'HTTP');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_custom_user_agent', 'Set a custom User Agent for the browser', 'Configuration');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_get_visible_text', 'Get the visible text content of the current page', 'Extraction');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_get_visible_html', 'Get the HTML content of the current page', 'Extraction');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_go_back', 'Navigate back in browser history', 'Navigation');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_go_forward', 'Navigate forward in browser history', 'Navigation');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_drag', 'Drag an element to a target location', 'Interaction');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_press_key', 'Press a keyboard key', 'Interaction');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_save_as_pdf', 'Save the current page as a PDF file', 'Export');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_playwright_server_id, 'playwright_click_and_switch_tab', 'Click an element and switch to newly opened tab', 'Navigation');
 
     -- Insert sample MCP Prompts (updated to match schema changes)
     INSERT INTO mcp_prompts (mcp_server_id, prompt_name, prompt_description) VALUES
@@ -130,36 +257,28 @@ BEGIN
     INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('VIDEO_PATH', FALSE, 'Directory path for saving videos');
     INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('SLOW_MO_MS', FALSE, 'Slow down operations by specified milliseconds');
 
-    -- Update Playwright server with score information
-    UPDATE mcp_servers 
-    SET overall_score = 75.00,
-        score_grade = 'B+',
-        score_max_points = 100,
-        score_earned_points = 75,
-        score_last_updated = CURRENT_TIMESTAMP
-    WHERE id = v_playwright_server_id;
 
-    -- Add score details for Playwright server
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_playwright_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'has_readme'), 1);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_playwright_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'has_license'), 1);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_playwright_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'has_glama_json'), 0);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_playwright_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'server_inspectable'), 1);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_playwright_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'has_tools'), 1);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_playwright_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'no_vulnerabilities'), 1);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_playwright_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'claimed_by_author'), 0);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_playwright_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'has_related_servers'), 0);
 
-    -- Example of a complete second MCP server entry
-    INSERT INTO mcp_servers (name, author, development_language, license, download_count, overview, server_slug, glama_url,
-                            overall_score, score_grade, score_max_points, score_earned_points, score_last_updated) 
+    -- Add score details for Playwright server (new structure)
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'has_readme', 'Repository has a README.md file', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'has_license', 'The repository has a LICENSE file', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'has_glama_json', 'Repository has a valid glama.json configuration file', 0, 15);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'server_inspectable', 'Server can be inspected through server inspector', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'has_tools', 'Server has at least one tool defined in schema', 1, 20);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'no_vulnerabilities', 'Server has no known security vulnerabilities', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'claimed_by_author', 'Server is claimed and verified by the original author', 0, 10);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'has_related_servers', 'Server has user-submitted related MCP servers for discoverability', 0, 5);
+
+    -- Example of a complete second MCP server entry (score fields removed)
+    INSERT INTO mcp_servers (name, author, development_language, license, download_count, overview, server_slug, glama_url, created_at, updated_at, scraped_at, is_active)
     VALUES (
         'GitHub MCP',
         'github-org',
@@ -169,33 +288,29 @@ BEGIN
         'MCP server for GitHub API integration, repository management, and issue tracking.',
         'github-mcp',
         'https://glama.ai/mcp/servers/github-mcp',
-        90.00,  -- 90% score
-        'A-',   -- Grade
-        100,    -- Max points possible
-        90,     -- Points earned
-        CURRENT_TIMESTAMP
+        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1
     );
 
     -- Get the GitHub server ID
     SELECT id INTO v_github_server_id FROM mcp_servers WHERE name = 'GitHub MCP';
 
-    -- Add score details for GitHub server
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_github_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'has_readme'), 1);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_github_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'has_license'), 1);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_github_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'has_glama_json'), 1);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_github_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'server_inspectable'), 1);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_github_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'has_tools'), 1);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_github_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'no_vulnerabilities'), 1);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_github_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'claimed_by_author'), 1);
-    INSERT INTO server_scores (mcp_server_id, criteria_id, score_value) VALUES
-    (v_github_server_id, (SELECT id FROM server_score_criteria WHERE criteria_name = 'has_related_servers'), 0);
+    -- Add score details for GitHub server (new structure)
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_github_server_id, 'has_readme', 'Repository has a README.md file', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_github_server_id, 'has_license', 'The repository has a LICENSE file', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_github_server_id, 'has_glama_json', 'Repository has a valid glama.json configuration file', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_github_server_id, 'server_inspectable', 'Server can be inspected through server inspector', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_github_server_id, 'has_tools', 'Server has at least one tool defined in schema', 1, 20);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_github_server_id, 'no_vulnerabilities', 'Server has no known security vulnerabilities', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_github_server_id, 'claimed_by_author', 'Server is claimed and verified by the original author', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_github_server_id, 'has_related_servers', 'Server has user-submitted related MCP servers for discoverability', 0, 5);
 
     -- Add categories for GitHub server
     SELECT id INTO v_category_id FROM categories WHERE category_name = 'Developer Tools';
@@ -208,29 +323,24 @@ BEGIN
     INSERT INTO server_categories (mcp_server_id, category_id) VALUES (v_github_server_id, v_category_id);
 
     -- Add links for GitHub server
-    SELECT id INTO v_link_type_id FROM link_types WHERE type_name = 'npm';
-    INSERT INTO server_links (mcp_server_id, link_type_id, url, link_text, is_primary)
-    VALUES (v_github_server_id, v_link_type_id, 'https://www.npmjs.com/package/@github/mcp', 'NPM Package', 1);
-    
-    SELECT id INTO v_link_type_id FROM link_types WHERE type_name = 'github';
-    INSERT INTO server_links (mcp_server_id, link_type_id, url, link_text, is_primary)
-    VALUES (v_github_server_id, v_link_type_id, 'https://github.com/github/mcp-server', 'GitHub Repository', 1);
-    
-    SELECT id INTO v_link_type_id FROM link_types WHERE type_name = 'documentation';
-    INSERT INTO server_links (mcp_server_id, link_type_id, url, link_text, is_primary)
-    VALUES (v_github_server_id, v_link_type_id, 'https://docs.github.com/mcp', 'Documentation', 1);
+    INSERT INTO mcp_links (mcp_server_id, link_type, url, is_primary)
+    VALUES (v_github_server_id, 'npm', 'https://www.npmjs.com/package/@github/mcp', 1);
+    INSERT INTO mcp_links (mcp_server_id, link_type, url, is_primary)
+    VALUES (v_github_server_id, 'github', 'https://github.com/github/mcp-server', 1);
+    INSERT INTO mcp_links (mcp_server_id, link_type, url, is_primary)
+    VALUES (v_github_server_id, 'documentation', 'https://docs.github.com/mcp', 1);
 
     -- Add sample tools for GitHub server
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_github_server_id, 'create_repository', 'Create a new GitHub repository', 'Repository Management', 1);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_github_server_id, 'list_issues', 'List issues from a repository', 'Issue Management', 2);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_github_server_id, 'create_pull_request', 'Create a new pull request', 'Code Review', 3);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_github_server_id, 'search_repositories', 'Search for repositories across GitHub', 'Search', 4);
-    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
-    (v_github_server_id, 'get_user_profile', 'Get GitHub user profile information', 'User Management', 5);
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_github_server_id, 'create_repository', 'Create a new GitHub repository', 'Repository Management');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_github_server_id, 'list_issues', 'List issues from a repository', 'Issue Management');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_github_server_id, 'create_pull_request', 'Create a new pull request', 'Code Review');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_github_server_id, 'search_repositories', 'Search for repositories across GitHub', 'Search');
+    INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
+    (v_github_server_id, 'get_user_profile', 'Get GitHub user profile information', 'User Management');
 
     -- GitHub-related environment variables (global definitions)
     INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('GITHUB_TOKEN', TRUE, 'GitHub Personal Access Token for API authentication');
@@ -270,7 +380,7 @@ BEGIN
     SELECT COUNT(*) INTO v_prompts FROM mcp_prompts;
     SELECT COUNT(*) INTO v_resources FROM mcp_resources;
     SELECT COUNT(*) INTO v_tags FROM tags;
-    SELECT COUNT(*) INTO v_links FROM server_links;
+    SELECT COUNT(*) INTO v_links FROM mcp_links;
     
     DBMS_OUTPUT.PUT_LINE('=== Final Database Statistics ===');
     DBMS_OUTPUT.PUT_LINE('Total Servers: ' || v_servers);
