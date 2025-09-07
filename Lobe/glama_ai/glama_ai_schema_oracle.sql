@@ -137,7 +137,6 @@ CREATE SEQUENCE seq_mcp_prompts START WITH 1 INCREMENT BY 1 NOCACHE;
 CREATE SEQUENCE seq_mcp_resources START WITH 1 INCREMENT BY 1 NOCACHE;
 CREATE SEQUENCE seq_mcp_tools START WITH 1 INCREMENT BY 1 NOCACHE;
 
--- Main MCP Servers table
 CREATE TABLE mcp_servers (
     id NUMBER(10) PRIMARY KEY,
     name NVARCHAR2(255) NOT NULL,
@@ -163,6 +162,31 @@ CREATE TABLE mcp_servers (
     is_active NUMBER(1) DEFAULT 1 CHECK (is_active IN (0, 1)) -- 1=active, 0=inactive; controls server visibility/soft delete
 );
 
+-- Score Summary Table
+CREATE TABLE score_summary (
+    id NUMBER(10) PRIMARY KEY,
+    mcp_server_id NUMBER(10) NOT NULL,
+    security CHAR(1) CHECK (security IN ('A', 'F')),
+    license CHAR(1) CHECK (license IN ('A', 'F')),
+    quality CHAR(1) CHECK (quality IN ('A', 'F')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_score_summary_server FOREIGN KEY (mcp_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE,
+    CONSTRAINT uk_score_summary_server UNIQUE(mcp_server_id)
+);
+
+-- Trigger for auto-increment on score_summary
+CREATE SEQUENCE seq_score_summary START WITH 1 INCREMENT BY 1 NOCACHE;
+CREATE OR REPLACE TRIGGER trg_score_summary_id
+    BEFORE INSERT ON score_summary
+    FOR EACH ROW
+BEGIN
+    IF :NEW.id IS NULL THEN
+        SELECT seq_score_summary.NEXTVAL INTO :NEW.id FROM dual;
+    END IF;
+END;
+/
+
 -- Create trigger for auto-increment on mcp_servers
 CREATE OR REPLACE TRIGGER trg_mcp_servers_id
     BEFORE INSERT ON mcp_servers
@@ -174,10 +198,10 @@ BEGIN
 END;
 /
 
--- MCP Scores table - stores all scoring criteria and values for each server
 CREATE TABLE mcp_scores (
     id NUMBER(10) PRIMARY KEY,
     mcp_server_id NUMBER(10) NOT NULL,
+    score_summary_id NUMBER(10),
     criteria_name NVARCHAR2(100) NOT NULL,
     criteria_description NVARCHAR2(500),
     score_value NUMBER(1) DEFAULT 0 CHECK (score_value IN (0, 1)), -- 0 or 1 for boolean criteria
@@ -185,6 +209,7 @@ CREATE TABLE mcp_scores (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_mcp_scores_server FOREIGN KEY (mcp_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE,
+    CONSTRAINT fk_mcp_scores_summary FOREIGN KEY (score_summary_id) REFERENCES score_summary(id) ON DELETE SET NULL,
     CONSTRAINT uk_mcp_scores UNIQUE(mcp_server_id, criteria_name)
 );
 
@@ -363,8 +388,48 @@ BEGIN
 END;
 /
 
--- Note: Removed mcp_api_endpoints table - I can't find any data regarding endpoints in the website, it's always empty
 
+
+CREATE TABLE mcp_reviews (
+    id NUMBER(10) PRIMARY KEY,
+    mcp_server_id NUMBER(10) NOT NULL,
+    review_content CLOB, -- Full review text (CLOB for flexibility)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_reviews_server FOREIGN KEY (mcp_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE
+);
+
+CREATE OR REPLACE TRIGGER trg_mcp_reviews_id
+    BEFORE INSERT ON mcp_reviews
+    FOR EACH ROW
+BEGIN
+    IF :NEW.id IS NULL THEN
+        SELECT seq_mcp_servers.NEXTVAL INTO :NEW.id FROM dual; -- Reuse server sequence for simplicity
+    END IF;
+END;
+/
+
+-- MCP Endpoints table - stores endpoint information for each MCP server
+-- Using CLOB for endpoint_content since endpoint data is unstructured or not available on glama.ai
+CREATE TABLE mcp_endpoints (
+    id NUMBER(10) PRIMARY KEY,
+    mcp_server_id NUMBER(10) NOT NULL,
+    endpoint_content CLOB, -- All endpoint info as CLOB
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_endpoints_server FOREIGN KEY (mcp_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE
+);
+
+-- Create trigger for auto-increment on mcp_endpoints
+CREATE OR REPLACE TRIGGER trg_mcp_endpoints_id
+    BEFORE INSERT ON mcp_endpoints
+    FOR EACH ROW
+BEGIN
+    IF :NEW.id IS NULL THEN
+        SELECT seq_mcp_servers.NEXTVAL INTO :NEW.id FROM dual; -- Reuse server sequence for simplicity
+    END IF;
+END;
+/ 
 -- Create indexes for better performance
 CREATE INDEX idx_mcp_servers_name ON mcp_servers(name);
 CREATE INDEX idx_mcp_servers_author ON mcp_servers(author);

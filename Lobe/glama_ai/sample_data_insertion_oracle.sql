@@ -1,3 +1,5 @@
+-- Sample data for mcp_endpoints (MCP Server Endpoints)
+
 -- Category inserts moved from schema file
 INSERT INTO categories (category_name) VALUES ('Art & Culture');
 INSERT INTO categories (category_name) VALUES ('RAG Systems');
@@ -100,6 +102,24 @@ BEGIN
 END;
 /
 
+-- Sample data for mcp_reviews (MCP Server Reviews)
+-- Note: Uses CLOB for review_content, and assumes mcp_server_id 1 exists
+INSERT INTO mcp_reviews (mcp_server_id, review_content, created_at, updated_at)
+VALUES (
+    1,
+    'This is a sample review for demonstration purposes. The review content can be as long as needed, since CLOB is used.',
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+);
+-- Sample data for mcp_endpoints (MCP Server Endpoints)
+-- Note: Uses CLOB for endpoint_content, and assumes mcp_server_id 1 exists
+INSERT INTO mcp_endpoints (mcp_server_id, endpoint_content, created_at, updated_at)
+VALUES (
+    1,
+    'This is a sample endpoint content for demonstration purposes. The endpoint content can be as long as needed, since CLOB is used.',
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+);
 -- Add links for the Playwright server
 DECLARE
     v_server_id NUMBER;
@@ -175,23 +195,28 @@ BEGIN
     -- Get Playwright server ID
     SELECT id INTO v_playwright_server_id FROM mcp_servers WHERE name = 'Playwright MCP';
 
+    -- Add score summary for Playwright server
+    INSERT INTO score_summary (mcp_server_id, security, license, quality)
+    VALUES (v_playwright_server_id, 'A', 'A', 'A');
+    SELECT id INTO v_score_summary_id FROM score_summary WHERE mcp_server_id = v_playwright_server_id;
+
     -- Add score details for Playwright server
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'has_readme', 'Repository has a README.md file', 1, 10);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'has_license', 'The repository has a LICENSE file', 1, 10);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'has_glama_json', 'Repository has a valid glama.json configuration file', 1, 15);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'server_inspectable', 'Server can be inspected through server inspector', 1, 15);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'has_tools', 'Server has at least one tool defined in schema', 1, 20);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'no_vulnerabilities', 'Server has no known security vulnerabilities', 1, 15);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'claimed_by_author', 'Server is claimed and verified by the original author', 1, 10);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'has_related_servers', 'Server has user-submitted related MCP servers for discoverability', 1, 5);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'has_readme', 'Repository has a README.md file', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'has_license', 'The repository has a LICENSE file', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'has_glama_json', 'Repository has a valid glama.json configuration file', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'server_inspectable', 'Server can be inspected through server inspector', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'has_tools', 'Server has at least one tool defined in schema', 1, 20);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'no_vulnerabilities', 'Server has no known security vulnerabilities', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'claimed_by_author', 'Server is claimed and verified by the original author', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'has_related_servers', 'Server has user-submitted related MCP servers for discoverability', 1, 5);
     
 
     
@@ -291,23 +316,28 @@ BEGIN
 
 
 
+    -- Add score summary for Playwright server (second block)
+    INSERT INTO score_summary (mcp_server_id, security, license, quality)
+    VALUES (v_playwright_server_id, 'A', 'A', 'F');
+    SELECT id INTO v_score_summary_id FROM score_summary WHERE mcp_server_id = v_playwright_server_id;
+
     -- Add score details for Playwright server (new structure)
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'has_readme', 'Repository has a README.md file', 1, 10);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'has_license', 'The repository has a LICENSE file', 1, 10);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'has_glama_json', 'Repository has a valid glama.json configuration file', 0, 15);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'server_inspectable', 'Server can be inspected through server inspector', 1, 15);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'has_tools', 'Server has at least one tool defined in schema', 1, 20);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'no_vulnerabilities', 'Server has no known security vulnerabilities', 1, 15);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'claimed_by_author', 'Server is claimed and verified by the original author', 0, 10);
-    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
-        (v_playwright_server_id, 'has_related_servers', 'Server has user-submitted related MCP servers for discoverability', 0, 5);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'has_readme', 'Repository has a README.md file', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'has_license', 'The repository has a LICENSE file', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'has_glama_json', 'Repository has a valid glama.json configuration file', 0, 15);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'server_inspectable', 'Server can be inspected through server inspector', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'has_tools', 'Server has at least one tool defined in schema', 1, 20);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'no_vulnerabilities', 'Server has no known security vulnerabilities', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'claimed_by_author', 'Server is claimed and verified by the original author', 0, 10);
+    INSERT INTO mcp_scores (mcp_server_id, score_summary_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, v_score_summary_id, 'has_related_servers', 'Server has user-submitted related MCP servers for discoverability', 0, 5);
 
     -- Example of a complete second MCP server entry (score fields removed)
     INSERT INTO mcp_servers (name, author, development_language, license, download_count, overview, server_slug, glama_url, created_at, updated_at, scraped_at, is_active)
