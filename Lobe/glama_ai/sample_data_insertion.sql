@@ -1,7 +1,7 @@
 -- Sample Data Insertion Script for Glama.ai MCP Schema
--- Created: September 5, 2025
+-- Created: September 8, 2025
 -- Purpose: Insert comprehensive sample data for Playwright MCP server
-
+-- Created by Franz Phillip G. Domingo
 -- This assumes the Playwright MCP server has already been inserted in the schema files
 -- Get the server ID for reference
 DECLARE @playwright_server_id INT = (SELECT id FROM mcp_servers WHERE name = 'Playwright MCP');
@@ -156,3 +156,4 @@ INSERT INTO mcp_api_endpoints (mcp_server_id, endpoint_url, http_method, endpoin
 (@github_server_id, 'https://api.github.com/repos/{owner}/{repo}', 'GET', 'Get repository information', 1, 1),
 (@github_server_id, 'https://api.github.com/repos/{owner}/{repo}/issues', 'GET', 'List repository issues', 1, 1),
 (@github_server_id, 'https://api.github.com/repos/{owner}/{repo}/pulls', 'POST', 'Create a pull request', 1, 1);
+

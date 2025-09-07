@@ -138,19 +138,19 @@ INSERT INTO server_environment_variables (variable_name, is_required, descriptio
 );
 
 
--- Add API endpoint example
+-- Add API endpoint example (commented out - table doesn't exist in current schema)
 DECLARE
     v_server_id NUMBER;
 BEGIN
     -- Get the server ID
     SELECT id INTO v_server_id FROM mcp_servers WHERE name = 'Playwright MCP';
     
-    INSERT INTO mcp_api_endpoints (mcp_server_id, endpoint_url, http_method, endpoint_description, is_public)
-    VALUES (v_server_id, 'https://glama.ai/api/mcp/v1/servers/glifxyz/glif-mcp-server', 'GET', 
-           'MCP directory API endpoint for server information', 1);
+    -- INSERT INTO mcp_api_endpoints (mcp_server_id, endpoint_url, http_method, endpoint_description, is_public)
+    -- VALUES (v_server_id, 'https://glama.ai/api/mcp/v1/servers/glifxyz/glif-mcp-server', 'GET', 
+    --        'MCP directory API endpoint for server information', 1);
 END;
 /
--- This assumes the Playwright MCP server has already been inserted in the schema file
+-- This block now includes server insertions that were assumed to exist elsewhere
 -- Get the server ID for reference
 DECLARE
     v_playwright_server_id NUMBER;
@@ -158,8 +158,40 @@ DECLARE
     v_category_id NUMBER;
     v_link_type_id NUMBER;
 BEGIN
+    -- Insert Playwright MCP server first
+    INSERT INTO mcp_servers (name, author, development_language, license, download_count, overview, server_slug, glama_url, created_at, updated_at, scraped_at, is_active)
+    VALUES (
+        'Playwright MCP',
+        'playwright-community',
+        'TypeScript',
+        'MIT',
+        156789,
+        'MCP server for browser automation using Playwright. Provides tools for web scraping, testing, and automation.',
+        'playwright-mcp',
+        'https://glama.ai/mcp/servers/playwright-mcp',
+        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1
+    );
+    
     -- Get Playwright server ID
     SELECT id INTO v_playwright_server_id FROM mcp_servers WHERE name = 'Playwright MCP';
+
+    -- Add score details for Playwright server
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'has_readme', 'Repository has a README.md file', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'has_license', 'The repository has a LICENSE file', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'has_glama_json', 'Repository has a valid glama.json configuration file', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'server_inspectable', 'Server can be inspected through server inspector', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'has_tools', 'Server has at least one tool defined in schema', 1, 20);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'no_vulnerabilities', 'Server has no known security vulnerabilities', 1, 15);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'claimed_by_author', 'Server is claimed and verified by the original author', 1, 10);
+    INSERT INTO mcp_scores (mcp_server_id, criteria_name, criteria_description, score_value, max_points) VALUES
+        (v_playwright_server_id, 'has_related_servers', 'Server has user-submitted related MCP servers for discoverability', 1, 5);
     
 
     
@@ -347,15 +379,29 @@ BEGIN
     INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('GITHUB_ORG', FALSE, 'Default GitHub organization for operations');
     INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('API_BASE_URL', FALSE, 'GitHub API base URL for enterprise instances');
 
-    -- Add API endpoints
-    INSERT INTO mcp_api_endpoints (mcp_server_id, endpoint_url, http_method, endpoint_description, requires_auth, is_public) VALUES
-    (v_github_server_id, 'https://glama.ai/api/mcp/v1/servers/github/mcp-server', 'GET', 'GitHub MCP server directory information', 0, 1);
-    INSERT INTO mcp_api_endpoints (mcp_server_id, endpoint_url, http_method, endpoint_description, requires_auth, is_public) VALUES
-    (v_github_server_id, 'https://api.github.com/repos/{owner}/{repo}', 'GET', 'Get repository information', 1, 1);
-    INSERT INTO mcp_api_endpoints (mcp_server_id, endpoint_url, http_method, endpoint_description, requires_auth, is_public) VALUES
-    (v_github_server_id, 'https://api.github.com/repos/{owner}/{repo}/issues', 'GET', 'List repository issues', 1, 1);
-    INSERT INTO mcp_api_endpoints (mcp_server_id, endpoint_url, http_method, endpoint_description, requires_auth, is_public) VALUES
-    (v_github_server_id, 'https://api.github.com/repos/{owner}/{repo}/pulls', 'POST', 'Create a pull request', 1, 1);
+    -- Insert sample related servers data
+    -- Note: These relationships show how servers can be semantically related or user-submitted alternatives
+    
+    -- Semantically related servers: Playwright and GitHub are both developer tools
+    INSERT INTO mcp_related_servers (source_server_id, related_server_id, relationship_type, relationship_strength, description, created_by)
+    VALUES (v_playwright_server_id, v_github_server_id, 'Semantically Related Servers', 0.75, 
+            'Both servers are developer tools commonly used together in CI/CD workflows', 'system');
+    
+    -- Reverse relationship
+    INSERT INTO mcp_related_servers (source_server_id, related_server_id, relationship_type, relationship_strength, description, created_by)
+    VALUES (v_github_server_id, v_playwright_server_id, 'Semantically Related Servers', 0.75, 
+            'Both servers are developer tools commonly used together in CI/CD workflows', 'system');
+    
+    -- Example user-submitted alternative (hypothetical case showing different approach)
+    -- This would represent a user suggesting an alternative testing approach
+    INSERT INTO mcp_related_servers (source_server_id, related_server_id, relationship_type, relationship_strength, description, created_by)
+    VALUES (v_playwright_server_id, v_github_server_id, 'User-submitted Alternatives', 0.60, 
+            'Alternative approach: Use GitHub Actions for automated testing instead of direct browser automation', 'user:developer123');
+    
+    -- Show how the system can track who suggested relationships and their reasoning
+    INSERT INTO mcp_related_servers (source_server_id, related_server_id, relationship_type, relationship_strength, description, created_by)
+    VALUES (v_github_server_id, v_playwright_server_id, 'User-submitted Alternatives', 0.85, 
+            'Great combination for end-to-end testing: GitHub for repo management, Playwright for browser testing', 'user:qa_engineer_456');
 
     -- Commit all changes
     COMMIT;
@@ -372,22 +418,25 @@ DECLARE
     v_tools NUMBER;
     v_prompts NUMBER;
     v_resources NUMBER;
-    v_tags NUMBER;
+    v_related_servers NUMBER;
     v_links NUMBER;
+    v_categories NUMBER;
 BEGIN
     SELECT COUNT(*) INTO v_servers FROM mcp_servers;
     SELECT COUNT(*) INTO v_tools FROM mcp_tools;
     SELECT COUNT(*) INTO v_prompts FROM mcp_prompts;
     SELECT COUNT(*) INTO v_resources FROM mcp_resources;
-    SELECT COUNT(*) INTO v_tags FROM tags;
+    SELECT COUNT(*) INTO v_related_servers FROM mcp_related_servers;
     SELECT COUNT(*) INTO v_links FROM mcp_links;
+    SELECT COUNT(*) INTO v_categories FROM categories;
     
     DBMS_OUTPUT.PUT_LINE('=== Final Database Statistics ===');
     DBMS_OUTPUT.PUT_LINE('Total Servers: ' || v_servers);
     DBMS_OUTPUT.PUT_LINE('Total Tools: ' || v_tools);
     DBMS_OUTPUT.PUT_LINE('Total Prompts: ' || v_prompts);
     DBMS_OUTPUT.PUT_LINE('Total Resources: ' || v_resources);
-    DBMS_OUTPUT.PUT_LINE('Total Tags: ' || v_tags);
+    DBMS_OUTPUT.PUT_LINE('Total Related Servers: ' || v_related_servers);
     DBMS_OUTPUT.PUT_LINE('Total Links: ' || v_links);
+    DBMS_OUTPUT.PUT_LINE('Total Categories: ' || v_categories);
 END;
 /

@@ -58,21 +58,9 @@ BEGIN
 END;
 /
 
-BEGIN
-    EXECUTE IMMEDIATE 'DROP TABLE mcp_related_servers CASCADE CONSTRAINTS';
-    EXCEPTION WHEN OTHERS THEN NULL;
-END;
-/
-
 -- Drop sequences if they exist
 BEGIN
     EXECUTE IMMEDIATE 'DROP SEQUENCE seq_mcp_servers';
-    EXCEPTION WHEN OTHERS THEN NULL;
-END;
-/
-
-BEGIN
-    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_mcp_related_servers';
     EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
@@ -125,10 +113,22 @@ BEGIN
 END;
 /
 
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE mcp_related_servers CASCADE CONSTRAINTS';
+    EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_mcp_related_servers';
+    EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
 -- Create sequences for auto-increment functionality
 CREATE SEQUENCE seq_mcp_servers START WITH 1 INCREMENT BY 1 NOCACHE;
-CREATE SEQUENCE seq_mcp_related_servers START WITH 1 INCREMENT BY 1 NOCACHE;
 CREATE SEQUENCE seq_mcp_scores START WITH 1 INCREMENT BY 1 NOCACHE;
+CREATE SEQUENCE seq_mcp_related_servers START WITH 1 INCREMENT BY 1 NOCACHE;
 CREATE SEQUENCE seq_mcp_links START WITH 1 INCREMENT BY 1 NOCACHE;
 CREATE SEQUENCE seq_categories START WITH 1 INCREMENT BY 1 NOCACHE;
 CREATE SEQUENCE seq_server_categories START WITH 1 INCREMENT BY 1 NOCACHE;
@@ -159,6 +159,7 @@ CREATE TABLE mcp_servers (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     scraped_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     mcp_directory_api NVARCHAR2(1000), -- MCP directory API endpoint URL
+    github_star_count NUMBER(10) DEFAULT 0, -- GitHub star count
     is_active NUMBER(1) DEFAULT 1 CHECK (is_active IN (0, 1)) -- 1=active, 0=inactive; controls server visibility/soft delete
 );
 
@@ -169,32 +170,6 @@ CREATE OR REPLACE TRIGGER trg_mcp_servers_id
 BEGIN
     IF :NEW.id IS NULL THEN
         SELECT seq_mcp_servers.NEXTVAL INTO :NEW.id FROM dual;
-    END IF;
-END;
-/
-
--- MCP Related Servers table - stores relationships between MCP servers
-CREATE TABLE mcp_related_servers (
-    id NUMBER(10) PRIMARY KEY,
-    mcp_server_id NUMBER(10) NOT NULL,
-    related_server_id NUMBER(10) NOT NULL,
-    relationship_type NVARCHAR2(50) DEFAULT 'Semantically Related Servers', -- 'User-submitted Alternatives', 'Semantically Related Servers'
-    relationship_description NVARCHAR2(500),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_related_servers_primary FOREIGN KEY (mcp_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE,
-    CONSTRAINT fk_related_servers_related FOREIGN KEY (related_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE,
-    CONSTRAINT chk_different_servers CHECK (mcp_server_id != related_server_id),
-    CONSTRAINT chk_relationship_type CHECK (relationship_type IN ('User-submitted Alternatives', 'Semantically Related Servers')),
-    CONSTRAINT uk_related_servers UNIQUE(mcp_server_id, related_server_id, relationship_type)
-);
-
--- Create trigger for auto-increment on mcp_related_servers
-CREATE OR REPLACE TRIGGER trg_mcp_related_servers_id
-    BEFORE INSERT ON mcp_related_servers
-    FOR EACH ROW
-BEGIN
-    IF :NEW.id IS NULL THEN
-        SELECT seq_mcp_related_servers.NEXTVAL INTO :NEW.id FROM dual;
     END IF;
 END;
 /
@@ -220,6 +195,34 @@ CREATE OR REPLACE TRIGGER trg_mcp_scores_id
 BEGIN
     IF :NEW.id IS NULL THEN
         SELECT seq_mcp_scores.NEXTVAL INTO :NEW.id FROM dual;
+    END IF;
+END;
+/
+
+-- MCP Related Servers table - stores relationships between servers
+CREATE TABLE mcp_related_servers (
+    id NUMBER(10) PRIMARY KEY,
+    source_server_id NUMBER(10) NOT NULL,
+    related_server_id NUMBER(10) NOT NULL,
+    relationship_type NVARCHAR2(50) NOT NULL CHECK (relationship_type IN ('Semantically Related Servers', 'User-submitted Alternatives')),
+    relationship_strength NUMBER(3,2) DEFAULT 0.00 CHECK (relationship_strength >= 0.00 AND relationship_strength <= 1.00), -- 0.00 to 1.00 scale
+    description NVARCHAR2(1000), -- Optional description of the relationship
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_by NVARCHAR2(255), -- User or system that created this relationship
+    is_active NUMBER(1) DEFAULT 1 CHECK (is_active IN (0, 1)), -- 1=active, 0=inactive
+    CONSTRAINT fk_related_servers_source FOREIGN KEY (source_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE,
+    CONSTRAINT fk_related_servers_related FOREIGN KEY (related_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE,
+    CONSTRAINT uk_related_servers UNIQUE(source_server_id, related_server_id, relationship_type),
+    CONSTRAINT chk_no_self_reference CHECK (source_server_id != related_server_id)
+);
+
+-- Create trigger for auto-increment on mcp_related_servers
+CREATE OR REPLACE TRIGGER trg_mcp_related_servers_id
+    BEFORE INSERT ON mcp_related_servers
+    FOR EACH ROW
+BEGIN
+    IF :NEW.id IS NULL THEN
+        SELECT seq_mcp_related_servers.NEXTVAL INTO :NEW.id FROM dual;
     END IF;
 END;
 /
@@ -381,9 +384,11 @@ CREATE INDEX idx_server_categories_category_id ON server_categories(category_id)
 CREATE INDEX idx_mcp_scores_server_id ON mcp_scores(mcp_server_id);
 CREATE INDEX idx_mcp_scores_score_value ON mcp_scores(score_value);
 
-CREATE INDEX idx_related_servers_primary ON mcp_related_servers(mcp_server_id);
-CREATE INDEX idx_related_servers_related ON mcp_related_servers(related_server_id);
-CREATE INDEX idx_related_servers_type ON mcp_related_servers(relationship_type);
+CREATE INDEX idx_mcp_related_servers_source ON mcp_related_servers(source_server_id);
+CREATE INDEX idx_mcp_related_servers_related ON mcp_related_servers(related_server_id);
+CREATE INDEX idx_mcp_related_servers_type ON mcp_related_servers(relationship_type);
+CREATE INDEX idx_mcp_related_servers_strength ON mcp_related_servers(relationship_strength);
+CREATE INDEX idx_mcp_related_servers_active ON mcp_related_servers(is_active);
 
 CREATE INDEX idx_environment_vars_required ON server_environment_variables(is_required);
 
