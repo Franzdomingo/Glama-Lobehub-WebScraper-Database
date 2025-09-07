@@ -101,17 +101,10 @@ CREATE TABLE server_score_criteria (
 
 -- Server Configuration Environment Variables
 CREATE TABLE server_environment_variables (
-    id SERIAL PRIMARY KEY,
-    mcp_server_id INTEGER NOT NULL,
-    variable_name VARCHAR(255) NOT NULL,
-    is_required BOOLEAN DEFAULT TRUE,
-    description TEXT,
-    default_value VARCHAR(500),
-    data_type VARCHAR(50), -- string, number, boolean, json
-    example_value VARCHAR(500),
-    security_level VARCHAR(20) DEFAULT 'standard', -- standard, sensitive, secret
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (mcp_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE
+    variable_name VARCHAR(255) PRIMARY KEY, -- Name
+    is_required BOOLEAN DEFAULT TRUE, -- Required
+    description TEXT -- Description
+    --, default_value VARCHAR(500) -- Default (commented out for now)
 );
 
 -- MCP Prompts (Interactive templates invoked by user choice)
@@ -196,7 +189,7 @@ CREATE INDEX idx_server_links_primary ON server_links(is_primary);
 CREATE INDEX idx_server_categories_server_id ON server_categories(mcp_server_id);
 CREATE INDEX idx_server_categories_category_id ON server_categories(category_id);
 
-CREATE INDEX idx_environment_vars_server_id ON server_environment_variables(mcp_server_id);
+-- idx_environment_vars_server_id removed (no per-server column)
 CREATE INDEX idx_environment_vars_required ON server_environment_variables(is_required);
 
 CREATE INDEX idx_prompts_server_id ON mcp_prompts(mcp_server_id);
@@ -365,16 +358,12 @@ FROM server_id CROSS JOIN link_types
 WHERE link_types.type_name IN ('npm', 'github');
 
 -- Add environment variable example
-WITH server_id AS (SELECT id FROM mcp_servers WHERE name = 'Playwright MCP')
-INSERT INTO server_environment_variables (mcp_server_id, variable_name, is_required, description, data_type, security_level)
-SELECT 
-    server_id.id,
+-- Example environment variable (simplified for new table shape)
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES (
     'GITHUB_PERSONAL_ACCESS_TOKEN',
     TRUE,
-    'GitHub Personal Access Token with appropriate permissions (repo scope for full control, public_repo for public repositories only)',
-    'string',
-    'secret'
-FROM server_id;
+    'GitHub Personal Access Token with appropriate permissions (repo scope for full control, public_repo for public repositories only)'
+);
 
 -- Add API endpoint example
 WITH server_id AS (SELECT id FROM mcp_servers WHERE name = 'Playwright MCP')

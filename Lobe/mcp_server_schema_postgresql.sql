@@ -146,6 +146,8 @@ CREATE INDEX idx_mcp_tools_server_id ON mcp_tools(mcp_server_id);
 CREATE INDEX idx_version_history_server_id ON version_history(mcp_server_id);
 CREATE INDEX idx_version_history_date ON version_history(published_date);
 
+-- Note: no server_environment_variables table in this generic schema file; per-project schema files handle env var definitions
+
 -- Insert some common installation platforms
 INSERT INTO installation_platforms (platform_name) VALUES 
 ('LobeChat'),

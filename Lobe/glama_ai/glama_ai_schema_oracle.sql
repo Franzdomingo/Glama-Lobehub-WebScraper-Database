@@ -192,6 +192,15 @@ CREATE TABLE mcp_servers (
     score_grade NVARCHAR2(10), -- Score grade (A+, A, B+, B, C+, C, D, F)
     score_max_points NUMBER(10) DEFAULT 0, -- Maximum possible points
     score_earned_points NUMBER(10) DEFAULT 0, -- Points earned
+    -- Presence / inspection flags (used by sample inserts)
+    has_readme NUMBER(1) DEFAULT 0 CHECK (has_readme IN (0, 1)),
+    has_license NUMBER(1) DEFAULT 0 CHECK (has_license IN (0, 1)),
+    has_glama_json NUMBER(1) DEFAULT 0 CHECK (has_glama_json IN (0, 1)),
+    server_inspectable NUMBER(1) DEFAULT 0 CHECK (server_inspectable IN (0, 1)),
+    has_tools NUMBER(1) DEFAULT 0 CHECK (has_tools IN (0, 1)),
+    no_vulnerabilities NUMBER(1) DEFAULT 0 CHECK (no_vulnerabilities IN (0, 1)),
+    claimed_by_author NUMBER(1) DEFAULT 0 CHECK (claimed_by_author IN (0, 1)),
+    has_related_servers NUMBER(1) DEFAULT 0 CHECK (has_related_servers IN (0, 1)),
     score_last_updated TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -343,29 +352,11 @@ END;
 
 -- Server Configuration Environment Variables
 CREATE TABLE server_environment_variables (
-    id NUMBER(10) PRIMARY KEY,
-    mcp_server_id NUMBER(10) NOT NULL,
-    variable_name NVARCHAR2(255) NOT NULL,
-    is_required NUMBER(1) DEFAULT 1 CHECK (is_required IN (0, 1)),
-    description CLOB,
-    default_value NVARCHAR2(500),
-    data_type NVARCHAR2(50), -- string, number, boolean, json
-    example_value NVARCHAR2(500),
-    security_level NVARCHAR2(20) DEFAULT 'standard', -- standard, sensitive, secret
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_env_vars_server FOREIGN KEY (mcp_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE
+    variable_name NVARCHAR2(255) PRIMARY KEY, -- Name
+    is_required NUMBER(1) DEFAULT 1 CHECK (is_required IN (0, 1)), -- Required
+    description CLOB -- Description
+    --default_value NVARCHAR2(500) -- Default (commented out for now)
 );
-
--- Create trigger for auto-increment on server_environment_variables
-CREATE OR REPLACE TRIGGER trg_server_env_vars_id
-    BEFORE INSERT ON server_environment_variables
-    FOR EACH ROW
-BEGIN
-    IF :NEW.id IS NULL THEN
-        SELECT seq_server_env_vars.NEXTVAL INTO :NEW.id FROM dual;
-    END IF;
-END;
-/
 
 -- MCP Prompts (Interactive templates invoked by user choice)
 CREATE TABLE mcp_prompts (
@@ -485,7 +476,7 @@ CREATE INDEX idx_server_links_primary ON server_links(is_primary);
 CREATE INDEX idx_server_categories_server_id ON server_categories(mcp_server_id);
 CREATE INDEX idx_server_categories_category_id ON server_categories(category_id);
 
-CREATE INDEX idx_environment_vars_server_id ON server_environment_variables(mcp_server_id);
+-- Removed index on mcp_server_id because environment variables are now global definitions
 
 CREATE INDEX idx_server_scores_server_id ON server_scores(mcp_server_id);
 CREATE INDEX idx_server_scores_criteria_id ON server_scores(criteria_id);
@@ -694,12 +685,19 @@ BEGIN
     -- Get the server ID
     SELECT id INTO v_server_id FROM mcp_servers WHERE name = 'Playwright MCP';
     
-    INSERT INTO server_environment_variables (mcp_server_id, variable_name, is_required, description, data_type, security_level)
-    VALUES (v_server_id, 'GITHUB_PERSONAL_ACCESS_TOKEN', 1, 
-           'GitHub Personal Access Token with appropriate permissions (repo scope for full control, public_repo for public repositories only)', 
-           'string', 'secret');
+    -- Add as a global environment variable definition (no per-server mapping in this table)
+    INSERT INTO server_environment_variables (variable_name, is_required, description)
+    VALUES ('GITHUB_PERSONAL_ACCESS_TOKEN', 1, 
+           'GitHub Personal Access Token with appropriate permissions (repo scope for full control, public_repo for public repositories only)');
 END;
 /
+-- Example environment variable (simplified for new table shape)
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES (
+    'GITHUB_PERSONAL_ACCESS_TOKEN',
+    1,
+    'GitHub Personal Access Token with appropriate permissions (repo scope for full control, public_repo for public repositories only)'
+);
+
 
 -- Add API endpoint example
 DECLARE

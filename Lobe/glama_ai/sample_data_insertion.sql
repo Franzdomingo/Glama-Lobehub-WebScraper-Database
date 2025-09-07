@@ -68,16 +68,15 @@ INSERT INTO mcp_resources (mcp_server_id, resource_name, resource_description) V
 (@playwright_server_id, 'test_fixtures', 'Pre-configured test data and fixtures'),
 (@playwright_server_id, 'screenshot_storage', 'Storage service for captured screenshots and videos');
 
--- Insert additional environment variables
-INSERT INTO server_environment_variables (mcp_server_id, variable_name, is_required, description, data_type, default_value, security_level) VALUES
-(@playwright_server_id, 'BROWSER_TYPE', 0, 'Browser to use for automation (chromium, firefox, webkit)', 'string', 'chromium', 'standard'),
-(@playwright_server_id, 'HEADLESS_MODE', 0, 'Run browser in headless mode', 'boolean', 'true', 'standard'),
-(@playwright_server_id, 'VIEWPORT_WIDTH', 0, 'Browser viewport width', 'number', '1280', 'standard'),
-(@playwright_server_id, 'VIEWPORT_HEIGHT', 0, 'Browser viewport height', 'number', '720', 'standard'),
-(@playwright_server_id, 'TIMEOUT_MS', 0, 'Default timeout for operations in milliseconds', 'number', '30000', 'standard'),
-(@playwright_server_id, 'SCREENSHOT_PATH', 0, 'Directory path for saving screenshots', 'string', './screenshots', 'standard'),
-(@playwright_server_id, 'VIDEO_PATH', 0, 'Directory path for saving videos', 'string', './videos', 'standard'),
-    (v_playwright_server_id, 'SLOW_MO_MS', 0, 'Slow down operations by specified milliseconds', 'number', '0', 'standard');
+-- Environment variables simplified to global definitions (no per-server mapping in this table)
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('BROWSER_TYPE', FALSE, 'Browser to use for automation (chromium, firefox, webkit)');
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('HEADLESS_MODE', FALSE, 'Run browser in headless mode');
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('VIEWPORT_WIDTH', FALSE, 'Browser viewport width');
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('VIEWPORT_HEIGHT', FALSE, 'Browser viewport height');
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('TIMEOUT_MS', FALSE, 'Default timeout for operations in milliseconds');
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('SCREENSHOT_PATH', FALSE, 'Directory path for saving screenshots');
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('VIDEO_PATH', FALSE, 'Directory path for saving videos');
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('SLOW_MO_MS', FALSE, 'Slow down operations by specified milliseconds');
 
     -- Update Playwright server with score information
     UPDATE mcp_servers 
@@ -146,11 +145,10 @@ INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category
 (@github_server_id, 'search_repositories', 'Search for repositories across GitHub', 'Search', 4),
 (@github_server_id, 'get_user_profile', 'Get GitHub user profile information', 'User Management', 5);
 
--- Add environment variables for GitHub server
-INSERT INTO server_environment_variables (mcp_server_id, variable_name, is_required, description, data_type, security_level) VALUES
-(@github_server_id, 'GITHUB_TOKEN', 1, 'GitHub Personal Access Token for API authentication', 'string', 'secret'),
-(@github_server_id, 'GITHUB_ORG', 0, 'Default GitHub organization for operations', 'string', 'standard'),
-(@github_server_id, 'API_BASE_URL', 0, 'GitHub API base URL for enterprise instances', 'string', 'standard');
+-- Global environment variable definitions (GitHub-specific variables listed globally)
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('GITHUB_TOKEN', TRUE, 'GitHub Personal Access Token for API authentication');
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('GITHUB_ORG', FALSE, 'Default GitHub organization for operations');
+INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('API_BASE_URL', FALSE, 'GitHub API base URL for enterprise instances');
 
 -- Add API endpoints
 INSERT INTO mcp_api_endpoints (mcp_server_id, endpoint_url, http_method, endpoint_description, requires_auth, is_public) VALUES
