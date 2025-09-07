@@ -127,7 +127,6 @@ CREATE TABLE mcp_prompts (
     prompt_name NVARCHAR(255) NOT NULL,
     prompt_description NVARCHAR(MAX),
     prompt_arguments NVARCHAR(MAX), -- JSON schema for arguments
-    prompt_category NVARCHAR(100),
     usage_examples NVARCHAR(MAX),
     is_active BIT DEFAULT 1,
     display_order INT DEFAULT 0,
@@ -141,12 +140,6 @@ CREATE TABLE mcp_resources (
     mcp_server_id INT NOT NULL,
     resource_name NVARCHAR(255) NOT NULL,
     resource_description NVARCHAR(MAX),
-    resource_type NVARCHAR(100), -- file, data, api, service
-    access_method NVARCHAR(100), -- uri, subscription, template
-    mime_type NVARCHAR(100),
-    is_active BIT DEFAULT 1,
-    display_order INT DEFAULT 0,
-    created_at DATETIME2 DEFAULT GETDATE(),
     FOREIGN KEY (mcp_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE
 );
 
@@ -215,11 +208,8 @@ CREATE INDEX IX_environment_vars_required ON server_environment_variables(is_req
 
 CREATE INDEX IX_prompts_server_id ON mcp_prompts(mcp_server_id);
 CREATE INDEX IX_prompts_active ON mcp_prompts(is_active);
-CREATE INDEX IX_prompts_category ON mcp_prompts(prompt_category);
 
 CREATE INDEX IX_resources_server_id ON mcp_resources(mcp_server_id);
-CREATE INDEX IX_resources_type ON mcp_resources(resource_type);
-CREATE INDEX IX_resources_active ON mcp_resources(is_active);
 
 CREATE INDEX IX_tools_server_id ON mcp_tools(mcp_server_id);
 CREATE INDEX IX_tools_category ON mcp_tools(tool_category);

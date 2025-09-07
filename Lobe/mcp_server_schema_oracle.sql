@@ -157,7 +157,8 @@ CREATE TABLE mcp_prompts (
     prompt_name VARCHAR2(255) NOT NULL,
     prompt_description VARCHAR2(1000),
     prompt_content CLOB,
-    category VARCHAR2(100),
+    prompt_arguments CLOB, -- JSON schema for arguments
+    usage_examples CLOB, -- Usage examples or example prompts
     is_active NUMBER(1) DEFAULT 1 CHECK (is_active IN (0,1)),
     CONSTRAINT fk_mcp_prompts_server FOREIGN KEY (mcp_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE
 );
@@ -359,6 +360,36 @@ CREATE INDEX idx_server_metadata_server ON server_metadata(mcp_server_id);
 CREATE INDEX idx_server_metadata_premium ON server_metadata(is_premium);
 CREATE INDEX idx_server_metadata_featured ON server_metadata(is_featured);
 CREATE INDEX idx_server_metadata_maintenance ON server_metadata(maintenance_status);
+
+-- MCP Resources (contextual data attached and managed by the client)
+CREATE TABLE mcp_resources (
+    id NUMBER PRIMARY KEY,
+    mcp_server_id NUMBER NOT NULL,
+    resource_name VARCHAR2(255) NOT NULL,
+    resource_description CLOB,
+    CONSTRAINT fk_mcp_resources_server FOREIGN KEY (mcp_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE
+);
+
+-- Create sequence for mcp_resources
+CREATE SEQUENCE mcp_resources_seq
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE;
+
+-- Create trigger for auto-increment on mcp_resources
+CREATE OR REPLACE TRIGGER mcp_resources_trigger
+    BEFORE INSERT ON mcp_resources
+    FOR EACH ROW
+BEGIN
+    IF :NEW.id IS NULL THEN
+        :NEW.id := mcp_resources_seq.NEXTVAL;
+    END IF;
+END;
+/ 
+
+CREATE INDEX idx_mcp_resources_server_id ON mcp_resources(mcp_server_id);
+-- idx_mcp_resources_type removed (resource_type field simplified away)
+-- idx_mcp_resources_active removed (is_active field simplified away)
 
 -- Insert some common installation platforms
 INSERT ALL

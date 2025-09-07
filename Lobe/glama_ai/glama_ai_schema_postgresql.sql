@@ -121,7 +121,6 @@ CREATE TABLE mcp_prompts (
     prompt_name VARCHAR(255) NOT NULL,
     prompt_description TEXT,
     prompt_arguments TEXT, -- JSON schema for arguments
-    prompt_category VARCHAR(100),
     usage_examples TEXT,
     is_active BOOLEAN DEFAULT TRUE,
     display_order INTEGER DEFAULT 0,
@@ -135,12 +134,6 @@ CREATE TABLE mcp_resources (
     mcp_server_id INTEGER NOT NULL,
     resource_name VARCHAR(255) NOT NULL,
     resource_description TEXT,
-    resource_type VARCHAR(100), -- file, data, api, service
-    access_method VARCHAR(100), -- uri, subscription, template
-    mime_type VARCHAR(100),
-    is_active BOOLEAN DEFAULT TRUE,
-    display_order INTEGER DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (mcp_server_id) REFERENCES mcp_servers(id) ON DELETE CASCADE
 );
 
@@ -208,11 +201,8 @@ CREATE INDEX idx_environment_vars_required ON server_environment_variables(is_re
 
 CREATE INDEX idx_prompts_server_id ON mcp_prompts(mcp_server_id);
 CREATE INDEX idx_prompts_active ON mcp_prompts(is_active);
-CREATE INDEX idx_prompts_category ON mcp_prompts(prompt_category);
 
 CREATE INDEX idx_resources_server_id ON mcp_resources(mcp_server_id);
-CREATE INDEX idx_resources_type ON mcp_resources(resource_type);
-CREATE INDEX idx_resources_active ON mcp_resources(is_active);
 
 CREATE INDEX idx_tools_server_id ON mcp_tools(mcp_server_id);
 CREATE INDEX idx_tools_category ON mcp_tools(tool_category);

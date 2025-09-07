@@ -100,25 +100,25 @@ BEGIN
     INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category, display_order) VALUES
     (v_playwright_server_id, 'playwright_click_and_switch_tab', 'Click an element and switch to newly opened tab', 'Navigation', 31);
 
-    -- Insert sample MCP Prompts
-    INSERT INTO mcp_prompts (mcp_server_id, prompt_name, prompt_description, prompt_category, display_order) VALUES
-    (v_playwright_server_id, 'create_web_scraper', 'Generate a comprehensive web scraping script using Playwright', 'Code Generation', 1);
-    INSERT INTO mcp_prompts (mcp_server_id, prompt_name, prompt_description, prompt_category, display_order) VALUES
-    (v_playwright_server_id, 'test_form_submission', 'Create automated tests for form submission workflows', 'Testing', 2);
-    INSERT INTO mcp_prompts (mcp_server_id, prompt_name, prompt_description, prompt_category, display_order) VALUES
-    (v_playwright_server_id, 'performance_audit', 'Generate performance testing scripts for web applications', 'Performance', 3);
-    INSERT INTO mcp_prompts (mcp_server_id, prompt_name, prompt_description, prompt_category, display_order) VALUES
-    (v_playwright_server_id, 'accessibility_check', 'Create accessibility testing automation scripts', 'Accessibility', 4);
+    -- Insert sample MCP Prompts (updated to match schema changes)
+    INSERT INTO mcp_prompts (mcp_server_id, prompt_name, prompt_description) VALUES
+    (v_playwright_server_id, 'create_web_scraper', 'Generate a comprehensive web scraping script using Playwright');
+    INSERT INTO mcp_prompts (mcp_server_id, prompt_name, prompt_description) VALUES
+    (v_playwright_server_id, 'test_form_submission', 'Create automated tests for form submission workflows');
+    INSERT INTO mcp_prompts (mcp_server_id, prompt_name, prompt_description) VALUES
+    (v_playwright_server_id, 'performance_audit', 'Generate performance testing scripts for web applications');
+    INSERT INTO mcp_prompts (mcp_server_id, prompt_name, prompt_description) VALUES
+    (v_playwright_server_id, 'accessibility_check', 'Create accessibility testing automation scripts');
 
-    -- Insert sample MCP Resources
-    INSERT INTO mcp_resources (mcp_server_id, resource_name, resource_description, resource_type, access_method, display_order) VALUES
-    (v_playwright_server_id, 'browser_context', 'Isolated browser context for test execution', 'service', 'api', 1);
-    INSERT INTO mcp_resources (mcp_server_id, resource_name, resource_description, resource_type, access_method, display_order) VALUES
-    (v_playwright_server_id, 'page_objects', 'Reusable page object models for common UI patterns', 'data', 'template', 2);
-    INSERT INTO mcp_resources (mcp_server_id, resource_name, resource_description, resource_type, access_method, display_order) VALUES
-    (v_playwright_server_id, 'test_fixtures', 'Pre-configured test data and fixtures', 'file', 'uri', 3);
-    INSERT INTO mcp_resources (mcp_server_id, resource_name, resource_description, resource_type, access_method, display_order) VALUES
-    (v_playwright_server_id, 'screenshot_storage', 'Storage service for captured screenshots and videos', 'service', 'api', 4);
+    -- Insert sample MCP Resources (simplified)
+    INSERT INTO mcp_resources (mcp_server_id, resource_name, resource_description) VALUES
+    (v_playwright_server_id, 'browser_context', 'Isolated browser context for test execution');
+    INSERT INTO mcp_resources (mcp_server_id, resource_name, resource_description) VALUES
+    (v_playwright_server_id, 'page_objects', 'Reusable page object models for common UI patterns');
+    INSERT INTO mcp_resources (mcp_server_id, resource_name, resource_description) VALUES
+    (v_playwright_server_id, 'test_fixtures', 'Pre-configured test data and fixtures');
+    INSERT INTO mcp_resources (mcp_server_id, resource_name, resource_description) VALUES
+    (v_playwright_server_id, 'screenshot_storage', 'Storage service for captured screenshots and videos');
 
     -- Insert additional environment variables
     INSERT INTO server_environment_variables (mcp_server_id, variable_name, is_required, description, data_type, default_value, security_level) VALUES
