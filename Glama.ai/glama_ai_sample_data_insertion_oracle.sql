@@ -146,19 +146,13 @@ DECLARE
 BEGIN
     -- Get the server ID
     SELECT id INTO v_server_id FROM mcp_servers WHERE name = 'Playwright MCP';
-    
-    -- Add as a global environment variable definition (no per-server mapping in this table)
-    INSERT INTO server_environment_variables (variable_name, is_required, description)
-    VALUES ('GITHUB_PERSONAL_ACCESS_TOKEN', 1, 
+
+    -- Add environment variable with proper server mapping
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description)
+    VALUES (v_server_id, 'GITHUB_PERSONAL_ACCESS_TOKEN', 1,
            'GitHub Personal Access Token with appropriate permissions (repo scope for full control, public_repo for public repositories only)');
 END;
 /
--- Example environment variable (simplified for new table shape)
-INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES (
-    'GITHUB_PERSONAL_ACCESS_TOKEN',
-    1,
-    'GitHub Personal Access Token with appropriate permissions (repo scope for full control, public_repo for public repositories only)'
-);
 
 
 -- Add API endpoint example (commented out - table doesn't exist in current schema)
@@ -180,6 +174,7 @@ DECLARE
     v_github_server_id NUMBER;
     v_category_id NUMBER;
     v_link_type_id NUMBER;
+    v_score_summary_id NUMBER;
 BEGIN
     -- Insert Playwright MCP server first
     INSERT INTO mcp_servers (name, author, development_language, license, download_count, overview, server_slug, glama_url, created_at, updated_at, scraped_at, is_active)
@@ -307,15 +302,19 @@ BEGIN
     INSERT INTO mcp_resources (mcp_server_id, resource_name, resource_description) VALUES
     (v_playwright_server_id, 'screenshot_storage', 'Storage service for captured screenshots and videos');
 
-    -- Environment variables defined as global entries (no per-server mapping in this table)
-    INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('BROWSER_TYPE', FALSE, 'Browser to use for automation (chromium, firefox, webkit)');
-    INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('HEADLESS_MODE', FALSE, 'Run browser in headless mode');
-    INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('VIEWPORT_WIDTH', FALSE, 'Browser viewport width');
-    INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('VIEWPORT_HEIGHT', FALSE, 'Browser viewport height');
-    INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('TIMEOUT_MS', FALSE, 'Default timeout for operations in milliseconds');
-    INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('SCREENSHOT_PATH', FALSE, 'Directory path for saving screenshots');
-    INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('VIDEO_PATH', FALSE, 'Directory path for saving videos');
-    INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('SLOW_MO_MS', FALSE, 'Slow down operations by specified milliseconds');
+    -- MCP Server Configuration for Playwright MCP server with proper foreign key mapping
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_playwright_server_id, 'PLAYWRIGHT_BROWSER', 0, 'Browser engine to use for Playwright automation (chromium, firefox, webkit). Defaults to chromium.');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_playwright_server_id, 'PLAYWRIGHT_HEADLESS', 0, 'Run Playwright browser in headless mode (true/false). Defaults to true.');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_playwright_server_id, 'PLAYWRIGHT_VIEWPORT_WIDTH', 0, 'Default viewport width for Playwright browser sessions. Defaults to 1280.');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_playwright_server_id, 'PLAYWRIGHT_VIEWPORT_HEIGHT', 0, 'Default viewport height for Playwright browser sessions. Defaults to 720.');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_playwright_server_id, 'PLAYWRIGHT_TIMEOUT', 0, 'Default timeout for Playwright operations in milliseconds. Defaults to 30000.');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_playwright_server_id, 'PLAYWRIGHT_SCREENSHOT_DIR', 0, 'Directory path for saving Playwright screenshots. Defaults to ./screenshots');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_playwright_server_id, 'PLAYWRIGHT_VIDEO_DIR', 0, 'Directory path for saving Playwright recorded videos. Defaults to ./videos');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_playwright_server_id, 'PLAYWRIGHT_SLOW_MO', 0, 'Slow down Playwright operations by specified milliseconds for debugging. Defaults to 0.');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_playwright_server_id, 'PLAYWRIGHT_USER_AGENT', 0, 'Custom user agent string for Playwright browser sessions.');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_playwright_server_id, 'PLAYWRIGHT_PROXY_SERVER', 0, 'Proxy server URL for Playwright browser sessions (e.g., http://proxy.example.com:8080).');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_playwright_server_id, 'PLAYWRIGHT_LOCALE', 0, 'Locale for Playwright browser sessions (e.g., en-US, fr-FR). Defaults to en-US.');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_playwright_server_id, 'PLAYWRIGHT_TIMEZONE', 0, 'Timezone for Playwright browser sessions (e.g., America/New_York). Defaults to system timezone.');
 
 
 
@@ -407,33 +406,33 @@ BEGIN
     INSERT INTO mcp_tools (mcp_server_id, tool_name, tool_description, tool_category) VALUES
     (v_github_server_id, 'get_user_profile', 'Get GitHub user profile information', 'User Management');
 
-    -- GitHub-related environment variables (global definitions)
-    INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('GITHUB_TOKEN', TRUE, 'GitHub Personal Access Token for API authentication');
-    INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('GITHUB_ORG', FALSE, 'Default GitHub organization for operations');
-    INSERT INTO server_environment_variables (variable_name, is_required, description) VALUES ('API_BASE_URL', FALSE, 'GitHub API base URL for enterprise instances');
+    -- GitHub-related MCP server configuration with proper foreign key mapping
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_github_server_id, 'GITHUB_TOKEN', 1, 'GitHub Personal Access Token for API authentication');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_github_server_id, 'GITHUB_ORG', 0, 'Default GitHub organization for operations');
+    INSERT INTO mcp_server_configuration (mcp_server_id, variable_name, is_required, description) VALUES (v_github_server_id, 'API_BASE_URL', 0, 'GitHub API base URL for enterprise instances');
 
     -- Insert sample related servers data
     -- Note: These relationships show how servers can be semantically related or user-submitted alternatives
     
     -- Semantically related servers: Playwright and GitHub are both developer tools
-    INSERT INTO mcp_related_servers (source_server_id, related_server_id, relationship_type, relationship_strength, description, created_by)
-    VALUES (v_playwright_server_id, v_github_server_id, 'Semantically Related Servers', 0.75, 
+    INSERT INTO mcp_related_servers (source_server_id, related_server_id, relationship_type, description, created_by)
+    VALUES (v_playwright_server_id, v_github_server_id, 'Semantically Related Servers',
             'Both servers are developer tools commonly used together in CI/CD workflows', 'system');
-    
+
     -- Reverse relationship
-    INSERT INTO mcp_related_servers (source_server_id, related_server_id, relationship_type, relationship_strength, description, created_by)
-    VALUES (v_github_server_id, v_playwright_server_id, 'Semantically Related Servers', 0.75, 
+    INSERT INTO mcp_related_servers (source_server_id, related_server_id, relationship_type, description, created_by)
+    VALUES (v_github_server_id, v_playwright_server_id, 'Semantically Related Servers',
             'Both servers are developer tools commonly used together in CI/CD workflows', 'system');
-    
+
     -- Example user-submitted alternative (hypothetical case showing different approach)
     -- This would represent a user suggesting an alternative testing approach
-    INSERT INTO mcp_related_servers (source_server_id, related_server_id, relationship_type, relationship_strength, description, created_by)
-    VALUES (v_playwright_server_id, v_github_server_id, 'User-submitted Alternatives', 0.60, 
+    INSERT INTO mcp_related_servers (source_server_id, related_server_id, relationship_type, description, created_by)
+    VALUES (v_playwright_server_id, v_github_server_id, 'User-submitted Alternatives',
             'Alternative approach: Use GitHub Actions for automated testing instead of direct browser automation', 'user:developer123');
-    
+
     -- Show how the system can track who suggested relationships and their reasoning
-    INSERT INTO mcp_related_servers (source_server_id, related_server_id, relationship_type, relationship_strength, description, created_by)
-    VALUES (v_github_server_id, v_playwright_server_id, 'User-submitted Alternatives', 0.85, 
+    INSERT INTO mcp_related_servers (source_server_id, related_server_id, relationship_type, description, created_by)
+    VALUES (v_github_server_id, v_playwright_server_id, 'User-submitted Alternatives',
             'Great combination for end-to-end testing: GitHub for repo management, Playwright for browser testing', 'user:qa_engineer_456');
 
     -- Commit all changes
