@@ -1,4 +1,7 @@
--- Sample data for mcp_endpoints (MCP Server Endpoints)
+-- Created by Franz Phillip G. Domingo 
+-- Created: September 5, 2025
+-- Last Updated: September 8, 2025
+-- Purepose: Sample data for mcp_endpoints (MCP Server Endpoints)
 
 -- Category inserts moved from schema file
 INSERT INTO categories (category_name) VALUES ('Art & Culture');

@@ -1,0 +1,4 @@
+-- Created by Franz Phillip G. Domingo 
+-- Created: September 5, 2025
+-- Last Updated: September 8, 2025
+-- Purpose: Insert sample data for lobehub MCP server directory
